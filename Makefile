@@ -1,29 +1,30 @@
-all			:	build
+HOME			=	/home/lbisson
 
-build		:
-				sudo mkdir -p /Users/lbisson/data/mariadb
-				sudo mkdir -p /Users/lbisson/data/wordpress
-				docker-compose -f srcs/docker-compose.yml build
+DOCKER_COMPOSE	=	sudo docker compose
 
-up			:
-				sudo mkdir -p /Users/lbisson/data/mariadb
-				sudo mkdir -p /Users/lbisson/data/wordpress
-				docker-compose -f srcs/docker-compose.yml up --detach
+all:	build
+		$(DOCKER_COMPOSE) -f srcs/docker-compose.yml up --detach
 
-stop		:
-				docker-compose -f srcs/docker-compose.yml -d stop
+log:	build
+		$(DOCKER_COMPOSE) -f srcs/docker-compose.yml up
 
-purge		:
-				docker system prune -af
-				sudo rm -rf /Users/lbisson/data/mariadb
-				sudo rm -rf /Users/lbisson/data/wordpress
+folders:
+		mkdir -p $(HOME)/data/mariadb_volume
+		mkdir -p $(HOME)/data/wordpress_volume
 
-re 			:
-				make purge
-				sudo mkdir -p /Users/lbisson/data/mariadb
-				sudo mkdir -p /Users/lbisson/data/wordpress
-				make build
-				make up
+build:	folders
+		$(DOCKER_COMPOSE) -f srcs/docker-compose.yml build
 
-clean		:
-				docker-compose -f srcs/docker-compose.yml down -v
+stop:
+		$(DOCKER_COMPOSE) -f srcs/docker-compose.yml stop
+
+clean:	stop
+		sudo docker system prune -f -a
+
+fclean:	clean
+		docker volume ls -q | xargs -r docker volume rm -f
+		sudo rm -rf $(HOME)/data
+
+re: 	fclean all
+
+.PHONY: folders all stop clean fclean re
