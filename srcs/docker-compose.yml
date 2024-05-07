@@ -1,66 +1,67 @@
 version: '3.8'
 
 services:
-    mariadb:
-        container_name: mariadb
-        networks:
-            - inception
-        build:
-            context: requirements/mariadb   # Dockerfile location
-            dockerfile: Dockerfile
-        env_file: .env
-        volumes:
-            - mariadb:/var/lib/mysql
-        restart: unless-stopped             # Restart unless manually stopped
-        expose:                             # Ports to expose to other containers (not to host)
-            - "3306"
 
-    nginx:
-        container_name: nginx
-        networks:
-            - inception
-        depends_on:
-            - wordpress                     # Do not start Nginx if Wordpress isn't started
-        build:
-            context: requirements/nginx     # Dockerfile location
-            dockerfile: Dockerfile
-        env_file: .env
-        volumes:
-            - wordpress:/var/www/wordpress
-        restart: on-failure                 # Restart only if the container crashed
-        ports:                              # Ports to expose on the host to allow external connections
-            - "443:443"
+	mariadb:
+		container_name: mariadb
+			networks:
+					- inception
+			build:
+					context: requirements/mariadb   # Dockerfile location
+					dockerfile: Dockerfile
+			env_file: .env
+			volumes:
+					- mariadb:/var/lib/mysql
+			restart: unless-stopped             # Restart unless manually stopped
+			expose:                             # Ports to expose to other containers (not to host)
+					- "3306"
 
-    wordpress:
-        container_name: wordpress
-        networks:
-            - inception
-        depends_on:
-            - mariadb                       # Do not start Wordpress if Mariadb isn't started
-        build:
-            context: requirements/wordpress # Dockerfile location
-            dockerfile: Dockerfile
-        env_file: .env
-        volumes:
-            - wordpress:/var/www/wordpress
-        restart: on-failure                 # Restart only if the container crashed
-        expose:
-            - "9000"
+	nginx:
+			container_name: nginx
+			networks:
+					- inception
+			depends_on:
+					- wordpress                     # Do not start Nginx if Wordpress isn't started
+			build:
+					context: requirements/nginx     # Dockerfile location
+					dockerfile: Dockerfile
+			env_file: .env
+			volumes:
+					- wordpress:/var/www/wordpress
+			restart: on-failure                 # Restart only if the container crashed
+			ports:                              # Ports to expose on the host to allow external connections
+					- "443:443"
+
+	wordpress:
+			container_name: wordpress
+			networks:
+					- inception
+			depends_on:
+					- mariadb                       # Do not start Wordpress if Mariadb isn't started
+			build:
+					context: requirements/wordpress # Dockerfile location
+					dockerfile: Dockerfile
+			env_file: .env
+			volumes:
+					- wordpress:/var/www/wordpress
+			restart: on-failure                 # Restart only if the container crashed
+			expose:
+					- "9000"
 
 volumes:                                    # Define volumes for data persistence
-    wordpress:
-        driver: local                       # Store volume locally on the host
-        driver_opts:
-            type: 'none'
-            o: 'bind'
-            device: '/home/lea/42/Inception/srcs/requirements/wordpress' # '/Users/lea/data/wordpress' # Host path where the volume data will be stored
-    mariadb:
-        driver: local
-        driver_opts:
-            type: 'none'
-            o: 'bind'
-            device: '/home/lea/42/Inception/srcs/requirements/mariadb' # '/Users/lea/data/mariadb'
+	wordpress:
+			driver: local                       # Store volume locally on the host
+			driver_opts:
+					type: 'none'
+					o: 'bind'
+					device: '/home/lea/42/Inception/srcs/requirements/wordpress' # '/Users/lea/data/wordpress' # Host path where the volume data will be stored
+	mariadb:
+			driver: local
+			driver_opts:
+					type: 'none'
+					o: 'bind'
+					device: '/home/lea/42/Inception/srcs/requirements/mariadb' # '/Users/lea/data/mariadb'
 
 networks:
-    inception:
-        driver: bridge
+	inception:
+			driver: bridge

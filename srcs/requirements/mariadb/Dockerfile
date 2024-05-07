@@ -11,7 +11,8 @@ RUN		apt update && apt upgrade -y && apt install -y	\
 COPY 	conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
 
 # Copy configuration script file and DB inside the container
-COPY	tools/config.sh tools/configDB.sql /etc/mysql/
+COPY		tools/config.sh /etc/mysql/
+COPY		tools/config.sql /etc/mysql/
 
 # Set permissions for script file
 RUN		chmod 777 /etc/mysql/config.sh
