@@ -1,19 +1,21 @@
-# Check if the environment variable has been set (i.e. empty)
-if [ -z "$MARIADB_SETUP_COMPLETE" ]; then
+service mariadb start
 
-	# This line uses 'envsubst' to replace environment variables in '/etc/mysql/configDB.sql' with their current values
-    # The output is redirected to a new file '/etc/mysql/config_new.sql'
-    < /etc/mysql/config.sql envsubst > /etc/mysql/config_new.sql
-	service mysql start;
+# Create table of name $SQL_DATABASE (an environemment variable from our .env file)
+mariadb -u root -e "CREATE DATABASE IF NOT EXISTS ${SQL_DATABASE}";
 
-	# Execute the SQL commands in the file using the root user of MySQL
-	mysql -u root < /etc/mysql/config_new.sql
+# Create user with passwords (i.e. from .env file)
+mariadb -u root -e "CREATE USER IF NOT EXISTS '${SQL_USER}'@'%' IDENTIFIED BY '${SQL_PASSWORD}'";
 
-	service mysql stop;
+# Grant all privileges on the database to user
+mariadb -u root -e "GRANT ALL PRIVILEGES ON ${SQL_DATABASE}.* TO '${SQL_USER}'@'%'";
 
-	# Set the environment variable to indicate that the script has been executed
-    export MARIADB_SETUP_COMPLETE=true
-fi
+# Create root password
+mariadb -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${SQL_ROOT_PASSWORD}'";
 
-# Start the MySQL server in safe mode
-exec mysqld_safe
+# Apply the new privileges
+mariadb -u root -e "FLUSH PRIVILEGES";
+
+mysqldump -u root -p$SQL_ROOT_PASSWORD $SQL_DATABASE > /usr/local/bin/dump.sql
+
+service mariadb stop
+
