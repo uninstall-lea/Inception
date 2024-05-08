@@ -1,67 +1,83 @@
-version: '3.8'
+version: "3.9"
 
 services:
 
-	mariadb:
-		container_name: mariadb
-			networks:
-					- inception
-			build:
-					context: requirements/mariadb   # Dockerfile location
-					dockerfile: Dockerfile
-			env_file: .env
-			volumes:
-					- mariadb:/var/lib/mysql
-			restart: unless-stopped             # Restart unless manually stopped
-			expose:                             # Ports to expose to other containers (not to host)
-					- "3306"
+  #------------------------- MariaDB -------------------------
+  mariadb:
+    container_name: mariadb
+    image: mariadb
+    networks:
+      - inception
+    build:
+      context: requirements/mariadb
+      dockerfile: Dockerfile
+    env_file: .env
+    volumes:
+      - mariadb:/var/lib/mysql
+    restart: unless-stopped
+    expose:
+      - "3306"
 
-	nginx:
-			container_name: nginx
-			networks:
-					- inception
-			depends_on:
-					- wordpress                     # Do not start Nginx if Wordpress isn't started
-			build:
-					context: requirements/nginx     # Dockerfile location
-					dockerfile: Dockerfile
-			env_file: .env
-			volumes:
-					- wordpress:/var/www/wordpress
-			restart: on-failure                 # Restart only if the container crashed
-			ports:                              # Ports to expose on the host to allow external connections
-					- "443:443"
+  #------------------------- WORDPRESS -------------------------
+  wordpress:
+    container_name: wordpress
+    image: wordpress
+    networks:
+      - inception
+    build:
+      context: requirements/wordpress
+      dockerfile: Dockerfile
+    env_file: .env
+    volumes:
+      - wordpress:/var/www/wordpress
+    restart: on-failure
+    depends_on:
+      - mariadb
+    expose:
+      - "9000"
 
-	wordpress:
-			container_name: wordpress
-			networks:
-					- inception
-			depends_on:
-					- mariadb                       # Do not start Wordpress if Mariadb isn't started
-			build:
-					context: requirements/wordpress # Dockerfile location
-					dockerfile: Dockerfile
-			env_file: .env
-			volumes:
-					- wordpress:/var/www/wordpress
-			restart: on-failure                 # Restart only if the container crashed
-			expose:
-					- "9000"
+  #------------------------- NGINX -------------------------
+  nginx:
+    container_name: nginx
+    image: nginx
+    networks:
+      - inception
+    build:
+      context: requirements/nginx
+      dockerfile: Dockerfile
+    env_file: .env
+    volumes:
+      - wordpress:/var/www/wordpress
+    restart: on-failure                     # restart in case of crash
+    depends_on:                             # wait for wordpress to start nginx
+      - wordpress
+    ports:
+      - "443:443"
 
-volumes:                                    # Define volumes for data persistence
-	wordpress:
-			driver: local                       # Store volume locally on the host
-			driver_opts:
-					type: 'none'
-					o: 'bind'
-					device: '/home/lea/42/Inception/srcs/requirements/wordpress' # '/Users/lea/data/wordpress' # Host path where the volume data will be stored
-	mariadb:
-			driver: local
-			driver_opts:
-					type: 'none'
-					o: 'bind'
-					device: '/home/lea/42/Inception/srcs/requirements/mariadb' # '/Users/lea/data/mariadb'
+#---------------------------------------------------------------------------------------------------
+
+volumes:
+
+  #------------------------- MARIADB VOLUME -------------------------
+  mariadb:
+    driver: local                                   # save in local
+    driver_opts:
+      type: none                                    # no specific type
+      o: bind                                       # bind mounts
+      device: ${USER_HOME}/data/mariadb             # where to save volume in local
+  
+  #------------------------- MARIADB VOLUME -------------------------
+  wordpress:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${USER_HOME}/data/wordpress
+
+#---------------------------------------------------------------------------------------------------
 
 networks:
-	inception:
-			driver: bridge
+
+  inception:
+    driver: bridge
+    name: inception      # allow the 3 containers to communicate
