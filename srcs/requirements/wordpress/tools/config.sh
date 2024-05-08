@@ -1,37 +1,22 @@
 sleep 10
 
-if [ -z "$WORDPRESS_SETUP_COMPLETE" ]; then
+# Download and extract WordPress
+wget https://wordpress.org/latest.tar.gz
+tar -xvf latest.tar.gz
+mkdir -p /var/www/html/
+mv wordpress/* /var/www/html/
+rm -rf latest.tar.gz
 
-	wp config create	--allow-root										\
-						--dbname=$SQL_DATABASE								\
-						--dbuser=$SQL_USER									\
-						--dbpass=$SQL_PASSWORD								\
-						--dbhost=mariadb:3306								\
-						--path='/var/www/wordpress'							\
-						--skip-check
+# Change ownership of WordPress files
+chown -R www-data:www-data /var/www/html/
 
-	wp core install		--url=$WORDPRESS_URL								\
-						--title=$WORDPRESS_TITLE							\
-						--path='/var/www/wordpress'							\
-						--admin_user=$WORDPRESS_ADMIN_LOGIN					\
-						--admin_password=$WORDPRESS_ADMIN_PASSWORD			\
-						--admin_email=$WORDPRESS_ADMIN_EMAIL				\
-						--skip-email										\
-						--allow-root
+# Download wp-cli directly to the user's bin directory
+wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -O /usr/local/bin/wp
+chmod +x /usr/local/bin/wp
 
-	wp user create	author author@example.com								\
-						--path='/var/www/wordpress'							\
-						--role=author										\
-						--user_pass=$WORDPRESS_USER_PASSWORD				\
-						--allow-root
-
-    export WORDPRESS_SETUP_COMPLETE=true
-fi
-
-if ! [ -d "/run/php" ]; then
-	mkdir /run/php
-fi
-
-# This command executes the PHP FastCGI Process Manager (php-fpm7.3)
-# '--nodaemonize' tells PHP-FPM to stay in the foreground so Docker can track the process properly
-exec /usr/sbin/php-fpm7.3 --nodaemonize
+# Configure WordPress
+mv /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
+wp config set DB_NAME $MYSQL_DATABASE --allow-root --path=/var/www/html/
+wp config set DB_USER $MYSQL_USER --allow-root --path=/var/www/html/
+wp config set DB_PASSWORD $MYSQL_PASSWORD --allow-root --path=/var/www/html/
+wp config set DB_HOST mariadb --allow-root --path=/var/www/html/
