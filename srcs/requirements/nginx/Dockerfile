@@ -16,7 +16,7 @@ RUN		mkdir -p /etc/nginx/ssl \
 		# Specify where to store the generated certificate and private key
 		-out /etc/nginx/ssl/inception.crt -keyout /etc/nginx/ssl/inception.key \
 		# Set the subject information for the certificate
-		-subj "/C=FR/ST=IDF/L=Paris/O=42/OU=42/CN=lea.42.fr/UID=lea"
+		-subj "/C=FR/ST=IDF/L=Paris/O=42/OU=42/CN=lbisson.42.fr/UID=lbisson"
 
 RUN		mkdir -p /var/run/nginx
 

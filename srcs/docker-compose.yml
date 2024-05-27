@@ -1,8 +1,27 @@
 version: "3.9"
 
-services:
+volumes:
+  mariadb:
+    driver: local                                   # save in local
+    driver_opts:
+      type: none                                    # no specific type
+      o: bind                                       # bind mounts
+      device: ${USER_HOME}/data/mariadb             # where to save volume in local
+  wordpress:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${USER_HOME}/data/wordpress
 
-  #------------------------- MariaDB -------------------------
+
+networks:
+  inception:
+    driver: bridge
+    name: inception      # allow the 3 containers to communicate
+
+
+services:
   mariadb:
     container_name: mariadb
     image: mariadb
@@ -17,8 +36,6 @@ services:
     restart: unless-stopped
     expose:
       - "3306"
-
-  #------------------------- WORDPRESS -------------------------
   wordpress:
     container_name: wordpress
     image: wordpress
@@ -29,14 +46,12 @@ services:
       dockerfile: Dockerfile
     env_file: .env
     volumes:
-      - wordpress:/var/www/wordpress
+      - wordpress:/var/www/html
     restart: on-failure
     depends_on:
       - mariadb
     expose:
       - "9000"
-
-  #------------------------- NGINX -------------------------
   nginx:
     container_name: nginx
     image: nginx
@@ -47,37 +62,9 @@ services:
       dockerfile: Dockerfile
     env_file: .env
     volumes:
-      - wordpress:/var/www/wordpress
+      - wordpress:/var/www/html
     restart: on-failure                     # restart in case of crash
     depends_on:                             # wait for wordpress to start nginx
       - wordpress
     ports:
       - "443:443"
-
-#---------------------------------------------------------------------------------------------------
-
-volumes:
-
-  #------------------------- MARIADB VOLUME -------------------------
-  mariadb:
-    driver: local                                   # save in local
-    driver_opts:
-      type: none                                    # no specific type
-      o: bind                                       # bind mounts
-      device: ${USER_HOME}/data/mariadb             # where to save volume in local
-  
-  #------------------------- MARIADB VOLUME -------------------------
-  wordpress:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${USER_HOME}/data/wordpress
-
-#---------------------------------------------------------------------------------------------------
-
-networks:
-
-  inception:
-    driver: bridge
-    name: inception      # allow the 3 containers to communicate
