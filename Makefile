@@ -23,7 +23,7 @@ clean:	stop
 		sudo docker system prune -f -a
 
 fclean:	clean
-		sudo docker volume ls -q | xargs -r docker volume rm -f
+		sudo docker volume ls -q | sudo xargs -r docker volume rm -f
 		sudo rm -rf $(HOME)/data
 
 re: fclean all

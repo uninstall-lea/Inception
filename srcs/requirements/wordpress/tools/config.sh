@@ -1,22 +1,41 @@
-sleep 10
+if ! [ -d $WP_PATH ];
+then
+	echo "Download core wordpress files to /var/www/html/"
+    wp core download --path=$WP_PATH --allow-root
+fi
 
-# Download and extract WordPress
-wget https://wordpress.org/latest.tar.gz
-tar -xvf latest.tar.gz
-mkdir -p /var/www/html/
-mv wordpress/* /var/www/html/
-rm -rf latest.tar.gz
+cd $WP_PATH;
 
-# Change ownership of WordPress files
-chown -R www-data:www-data /var/www/html/
+if [ -f wp-config.php ] && wp config has DB_PASSWORD --allow-root;
+then
+	echo "wp-config.php is found"
+else
+	cp wp-config-sample.php wp-config.php
 
-# Download wp-cli directly to the user's bin directory
-wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -O /usr/local/bin/wp
-chmod +x /usr/local/bin/wp
+	# Configure WordPress
+	wp config set --allow-root DB_HOST $MYSQL_HOST --path="."
+    wp config set --allow-root DB_NAME $MYSQL_DATABASE --path="." 
+    wp config set --allow-root DB_USER $MYSQL_USER --path="."
+    wp config set --allow-root DB_PASSWORD "${MYSQL_USER_PASSWORD}" --path="." --quiet
+    wp config set --allow-root table_prefix $MYSQL_TABLE_PREFIX --path="."
+    wp config set --allow-root WP_DEBUG false --path="." --raw
+    wp config set --allow-root WP_DEBUG_LOG false --path="." --raw
 
-# Configure WordPress
-mv /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
-wp config set DB_NAME $MYSQL_DATABASE --allow-root --path=/var/www/html/
-wp config set DB_USER $MYSQL_USER --allow-root --path=/var/www/html/
-wp config set DB_PASSWORD $MYSQL_PASSWORD --allow-root --path=/var/www/html/
-wp config set DB_HOST mariadb --allow-root --path=/var/www/html/
+	wp config shuffle-salts --allow-root
+
+    wp core install --allow-root \
+        --path="." \
+        --url=$DOMAIN_NAME \
+        --title=$WP_TITLE \
+        --admin_user=$WP_ADMIN_LOGIN \
+        --admin_password=$WP_ADMIN_PASSWORD \
+        --admin_email=$WP_ADMIN_EMAIL
+    wp plugin update --path="." --allow-root --all
+
+    # Create user
+    wp user create --path=$WP_PATH --allow-root \
+        $WP_USER_LOGIN $WP_USER_EMAIL --user_pass=$WP_USER_PASSWORD \
+        --role=author --porcelain
+fi
+
+php-fpm7.4 -F
