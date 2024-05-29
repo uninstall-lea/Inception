@@ -1,31 +1,19 @@
 FROM	debian:bullseye
 
 # Update package list and install Nginx and OpenSSL
-RUN		apt update && apt upgrade -y && apt install -y \
-		vim \
-		nginx \
-		curl \
-		openssl
+RUN		apt update && apt upgrade -y && \
+		apt install -y vim nginx curl openssl
 
-		# Create the directory for storing the SSL certificate and private key
-RUN		mkdir -p /etc/nginx/ssl \
-		# Use OpenSSL to generate a new self-signed certificate request
-			# '-x509' indicates we want to generate a self-signed certificate rather than a certificate request
-			# '-nodes' (no DES) means the private key file will not be encrypted with a passphrase
-		&& openssl req -x509 -nodes \
-		# Specify where to store the generated certificate and private key
-		-out /etc/nginx/ssl/inception.crt -keyout /etc/nginx/ssl/inception.key \
-		# Set the subject information for the certificate
-		-subj "/C=FR/ST=IDF/L=Paris/O=42/OU=42/CN=lbisson.42.fr/UID=lbisson"
+COPY	conf/nginx.conf /etc/nginx/sites-available/lbisson.42.fr.conf
 
-RUN		mkdir -p /var/run/nginx
+RUN		openssl req -x509 -sha256 -nodes				\
+		-days 365 										\
+		-newkey rsa:4096 								\
+		-keyout /etc/ssl/private/nginx-selfsigned.key	\
+		-out /etc/ssl/certs/nginx-selfsigned.crt		\
+		-subj "/C=FR/ST=Ile-de-France/L=Paris/O=42/OU=Inception/CN=lbisson.42.fr/"
 
-COPY	conf/nginx.conf /etc/nginx/nginx.conf
-
-# Set permissions for HTML directory so everyone can read, write, execute.
-# And change the ownership and group of '/var/www/html' and its contents to www-data:www-data (i.e., owner:group)
-RUN		chmod 755 /var/www/html \
-		&& chown -R www-data:www-data /var/www/html
+RUN 	ln -s /etc/nginx/sites-available/lbisson.42.fr.conf /etc/nginx/sites-enabled/lbisson.42.fr.conf
 
 EXPOSE	443
 
