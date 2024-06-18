@@ -9,19 +9,19 @@ VOLUMES			:=	${addprefix ${DATA}/,	\
 all: up
 
 up: create_dir build create
-	${COMPOSE} up -d
+	sudo ${COMPOSE} up -d
 
 stop down build create:
-	${COMPOSE} $@
+	sudo ${COMPOSE} $@
 
 create_dir:
 	mkdir -p ${VOLUMES}
 
 clean:
-	${COMPOSE} down --rmi all
+	sudo ${COMPOSE} down --rmi all
 
 fclean:
-	${COMPOSE} down --rmi all --volumes
+	sudo ${COMPOSE} down --rmi all --volumes
 	docker system prune -af
 	sudo rm -rf ${VOLUMES}
 
