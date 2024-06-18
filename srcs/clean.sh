@@ -1,7 +1,6 @@
 #!/bin/bash
 
-#sudo docker-compose down --rmi all --volumes
-sudo docker stop $(sudo docker ps -q)
-sudo docker rm -f $(sudo docker ps -aq)
-sudo docker system prune -af
-sudo docker volume rm $(sudo docker volume ls -q)
+docker-compose down --rmi all --volumes
+docker rm -f $(docker ps -a -q)
+docker system prune -af
+docker volume rm $(docker volume ls -q)
