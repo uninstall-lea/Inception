@@ -8,11 +8,11 @@ RUN	apt update -y && \
 	openssl req \
 		-x509 \
 		-newkey rsa:2048 \
-		-keyout /etc/nginx/certificates/lfchouch-key.pem \
-		-out /etc/nginx/certificates/lfchouch.pem \
+		-keyout /etc/nginx/certificates/lbisson-key.pem \
+		-out /etc/nginx/certificates/lbisson.pem \
 		-days 365 \
 		-nodes \
-		-subj '/C=FR/ST=IDF/L=Paris/O=42/OU=42Paris/CN=lfchouch.42.fr/UID=lfchouch'
+		-subj '/C=FR/ST=IDF/L=Paris/O=42/OU=42Paris/CN=lbisson.42.fr/UID=lbisson'
 
 EXPOSE 443
 
@@ -20,6 +20,5 @@ RUN rm /etc/nginx/sites-enabled/default
 COPY conf/nginx.conf /etc/nginx/sites-available/default
 RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
 
-#Launching in foreground
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
 

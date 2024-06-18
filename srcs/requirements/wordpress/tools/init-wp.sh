@@ -2,8 +2,7 @@
 
 set -e
 
-#Installing wordpress if not already
-if [ -z "$(ls -A /var/www/wordpress)" ]; then
+if [ -z "$(ls -A /var/www/wordpress)" ]; then # ici on verifie si le volume de wordpress possede l'installation
 	echo "Install Wordpress" 
 	wp core download --allow-root
 else
@@ -11,13 +10,11 @@ else
 	chown -R www-data:www-data /var/www/wordpress/
 fi
 
-#Creating the folder if it doesnt exist
-if [ ! -d /run/php ]; then
+if [ ! -d /run/php ]; then #Peut entrainer un soucis au niveau de PHP si le dossier n'est pas
 	mkdir /run/php
 fi
 
-#Configuring Wordpress
-if [ ! -f /var/www/wordpress/wp-config.php ]; then
+if [ ! -f /var/www/wordpress/wp-config.php ]; then # ici on verifie si le volume de wordpress possede la configuration voulu 
 	echo "INIT WORDPRESS"
 	wp config create --dbname=$WORDPRESS_DB_NAME --dbuser=$MYSQL_USER --dbpass=$MYSQL_USER_PASSWORD --dbhost=$MYSQL_HOST --allow-root --skip-check
 	wp db create --allow-root
