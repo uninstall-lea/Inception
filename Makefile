@@ -3,7 +3,8 @@ COMPOSE			:=	docker compose --project-directory ${SOURCES_FOLDER}
 DATA			:=	${HOME}/data
 VOLUMES			:=	${addprefix ${DATA}/,	\
 						wordpress			\
-						mariadb				\}
+						mariadb				\
+					}
 all: up
 
 up: create_dir build create
