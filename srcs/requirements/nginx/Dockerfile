@@ -1,21 +1,24 @@
-FROM	debian:bullseye
+FROM debian:bullseye
 
-# Update package list and install Nginx and OpenSSL
-RUN		apt update && apt upgrade -y && \
-		apt install -y vim nginx curl openssl
+RUN	apt update -y && \
+	apt upgrade -y && \
+	apt install -y openssl nginx && \
+	mkdir /etc/nginx/certificates && \
+	mkdir /var/www/wordpress && \
+	openssl req \
+		-x509 \
+		-newkey rsa:2048 \
+		-keyout /etc/nginx/certificates/lbisson-key.pem \
+		-out /etc/nginx/certificates/lbisson.pem \
+		-days 365 \
+		-nodes \
+		-subj '/C=FR/ST=IDF/L=Paris/O=42/OU=42Paris/CN=lbisson.42.fr/UID=lbisson'
 
-COPY	conf/nginx.conf /etc/nginx/sites-available/lbisson.42.fr.conf
+EXPOSE 443
 
-RUN		openssl req -x509 -sha256 -nodes				\
-		-days 365 										\
-		-newkey rsa:4096 								\
-		-keyout /etc/ssl/private/nginx-selfsigned.key	\
-		-out /etc/ssl/certs/nginx-selfsigned.crt		\
-		-subj "/C=FR/ST=Ile-de-France/L=Paris/O=42/OU=Inception/CN=lbisson.42.fr/"
+RUN rm /etc/nginx/sites-enabled/default
+COPY conf/nginx.conf /etc/nginx/sites-available/default
+RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
 
-RUN 	ln -s /etc/nginx/sites-available/lbisson.42.fr.conf /etc/nginx/sites-enabled/lbisson.42.fr.conf
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
 
-EXPOSE	443
-
-# Start nginx in foreground (deamon off means not in background)
-CMD		[ "nginx", "-g", "daemon off;" ]

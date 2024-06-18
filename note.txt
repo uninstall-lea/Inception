@@ -1,0 +1,32 @@
+faire un sudo vim /etc/hosts et mettre :
+127.0.1.1       lbisson
+127.0.0.1       lbisson.42.fr www.lbisson.42.fr
+
+Lancez les commandes ci dessous pour etre bien clean:
+sudo docker stop $(sudo docker ps -q) (arrete tous les conteneurs en cours d execution)
+sudo docker rm $(sudo docker ps -aq)  (supprime tous les conteneurs)
+sudo docker rmi -f $(sudo docker images -q) (supprime toutes les images)
+sudo docker system prune -af   (supprime tous les conteneurs, images, volumes... non reference ou arrete)
+sudo docker volume rm $(sudo docker volume ls -q) (supprime tous les volumes)
+
+Ensuite on peut make
+
+
+voici un .env type:
+
+DOMAIN_NAME=lbisson.42.fr
+
+MYSQL_HOST=mariadb:3306
+MYSQL_ROOT_PASSWORD=racine
+MYSQL_USER=lbisson
+MYSQL_USER_PASSWORD=coucou
+
+
+WORDPRESS_DB_NAME=wordpress
+WORDPRESS_TITLE="Hello World!"
+WORDPRESS_ADMIN_USER=lbisson
+WORDPRESS_ADMIN_PASSWORD=racinne
+WORDPRESS_ADMIN_EMAIL=lbisson@student.42.fr
+WORDPRESS_USER=author
+WORDPRESS_USER_PASSWORD=coucou
+WORDPRESS_USER_EMAIL=author@student.42.fr
