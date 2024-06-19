@@ -18,7 +18,7 @@ if [ ! -f /var/www/wordpress/wp-config.php ]; then # ici on verifie si le volume
 	echo "INIT WORDPRESS"
 	wp config create --dbname=$WORDPRESS_DB_NAME --dbuser=$MYSQL_USER --dbpass=$MYSQL_USER_PASSWORD --dbhost=$MYSQL_HOST --allow-root --skip-check
 	wp db create --allow-root
-	wp core install --allow-root --url=$DOMAIN_NAME --title=$WORDPRESS_TITLE --admin_user=$WORDPRESS_ADMIN_USER --admin_password=$WORDPRESS_ADMIN_PASSWORD --admin_email=$WORDPRESS_ADMIN_EMAIL
+	wp core install --allow-root --url=$DOMAIN_NAME --title="$WORDPRESS_TITLE" --admin_user=$WORDPRESS_ADMIN_USER --admin_password=$WORDPRESS_ADMIN_PASSWORD --admin_email=$WORDPRESS_ADMIN_EMAIL
     wp user create --allow-root $WORDPRESS_USER $WORDPRESS_USER_EMAIL --user_pass=$WORDPRESS_USER_PASSWORD --role=author
 	chown -R www-data:www-data /var/www/wordpress/
 	chmod -R 755 /var/www/wordpress/
