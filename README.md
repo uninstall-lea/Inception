@@ -12,7 +12,7 @@
 The setup follows a **LEMP stack** (Linux, Nginx, MariaDB, PHP/WordPress), built step by step with **Dockerfiles** and **docker-compose**, to understand containerization in practice.  
 
 This project provided hands-on experience with **Dockerfiles, docker-compose, docker networks, SSL certificates, relational databases, and service management.**
-See subject [here](https://github.com/uninstall-lea/Inception/blob/main/Inception.pdf).
+See subject [here](https://github.com/uninstall-lea/Inception/blob/main/subject/Inception.pdf).
 
 ## 🛠️ Installation & Setup
 
