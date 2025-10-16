@@ -1,6 +1,6 @@
 faire un sudo vim /etc/hosts et mettre :
-127.0.1.1       lbisson
-127.0.0.1       lbisson.42.fr www.lbisson.42.fr
+127.0.1.1       login
+127.0.0.1       login.42.fr www.login.42.fr
 
 Lancez les commandes ci dessous pour etre bien clean:
 sudo docker stop $(docker ps -q) (arrete tous les conteneurs en cours d execution)
@@ -16,7 +16,7 @@ Ensuite on peut make
 voici un .env type:
 
 
-DOMAIN_NAME=lbisson.42.fr
+DOMAIN_NAME=login.42.fr
 
 MYSQL_HOST=mariadb:3306
 MYSQL_ROOT_PASSWORD=

@@ -60,7 +60,7 @@ volumes:
   name: wordpress
   driver: local
   driver_opts:
-   type: volume
+   type: none
    device: $HOME/data/wordpress
    o: bind
 
@@ -68,6 +68,6 @@ volumes:
   name: mariadb
   driver: local
   driver_opts:
-   type: volume
+   type: none
    device: $HOME/data/mariadb
    o: bind
